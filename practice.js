@@ -1,7 +1,7 @@
 const app = document.querySelector('#app');
 const paths = [
   ['feelings', 'Releasing feelings', 'The three Sedona questions, one at a time.'],
-  ['wants', 'Releasing wants', 'Start with the first three steps of Larry Crane’s method.'],
+  ['wants', 'Releasing wants', 'Larry Crane’s six-step method.'],
   ['topics', 'Releasing by topics', 'Work through money, relationships or a topic of your own.'],
   ['goals', 'Releasing goals', 'Write a goal, then work with whatever comes up.'],
   ['quick', 'Quick release', 'Welcome the feeling and allow it to be here.']
@@ -47,7 +47,6 @@ function pencilExample() {
       <div class="pencil-captions"><span>Hold it</span><span>Open your hand</span><span>Let it drop</span></div>
       <figcaption>${session.path === 'quick' ? 'Picture the feeling as a pencil resting in your open hand. Let it be there. If you notice yourself gripping or trying to make it drop, allow that reaction too.' : 'In this exercise, imagine the feeling as a pencil in your hand. The pencil is something you’re holding, rather than part of your hand. Open your fingers and it can rest there freely. Then let it drop. Try the same with the feeling: let it be there, then see if you can relax your hold without pushing it away.'}</figcaption>
     </figure>
-    <p class="pencil-source">Adapted from The Insider’s Guide to the Sedona Method, p. 4.</p>
   </details>`;
 }
 function cloudExample() {
@@ -59,7 +58,6 @@ function cloudExample() {
       <div class="pencil-captions"><span>Notice it</span><span>Let it be here</span><span>Let it move in its own time</span></div>
       <figcaption>Imagine this feeling as a cloud in the sky. Let it be here. It might move, change shape or stay for a while. You can leave it alone.</figcaption>
     </figure>
-    <p class="pencil-source">Based on the cloud analogy in <a href="https://www.sedona.com/how-it-works" target="_blank" rel="noopener">The Sedona Method — How It Works</a>.</p>
   </details>`;
 }
 
@@ -81,6 +79,13 @@ function home() {
       <span class="path-number">0${i+1}</span><span><strong>${label}</strong><small>${description}</small></span><span aria-hidden="true">→</span></button>`).join('')}</div>
     <p><a href="./guide.html">Read the field guide</a></p>`);
 }
+const goalExamples = {
+  love: 'I allow myself to enjoy a loving, playful, committed partnership.',
+  money: 'I allow myself to have and enjoy S$_____ in savings.',
+  business: 'I allow myself to enjoy S$_____ in monthly business profit.',
+  home: 'I allow myself to enjoy a peaceful home with room for a garden.',
+  writing: 'I allow myself to enjoy sharing writing that matters to me.'
+};
 function start(path) {
   selectedWant = '';
   session = {path, focus:'', topicIndex:0, topicMode:'attachment', answers:{}};
@@ -88,11 +93,15 @@ function start(path) {
   const titles = {
     feelings:['What are you feeling?','Write the feeling, or what happened.','For example, hurt after a conversation'],
     wants:['What are you holding on to?','Write what’s on your mind. You’ll choose the want in a moment.','For example, needing someone to understand me'],
-    goals:['What would you allow yourself to experience?','Write one goal. You can begin with “I allow myself to…”','I allow myself to enjoy…'],
+    goals:['What would you allow yourself to experience?','Write one goal in the present. Try “I allow myself to…” followed by what you’d like to have or experience.','I allow myself to enjoy…'],
     quick:['What are you feeling?','Write the feeling, or what’s bringing it up.','For example, feeling nervous about a presentation']
   };
   const [title,copy,placeholder] = titles[path];
   screen(paths.find(p=>p[0]===path)[1],title,`<p>${copy}</p>`+field('Your focus','',placeholder)+(path==='feelings'?'<p><a href="./feelings.html" target="_blank" rel="noopener">Need help naming the feeling? View the feelings charts ↗</a></p>':''),button('Begin','save-focus','',true));
+  if (path === 'goals') {
+    const example = params.get('example');
+    if (Object.hasOwn(goalExamples, example)) app.querySelector('#entry').value = goalExamples[example];
+  }
 }
 function saveFocus() {
   const entry = app.querySelector('#entry');
@@ -117,7 +126,7 @@ function wantsStep(step) {
       'Larry calls this “imperturbability”: being at ease even when things don’t go your way. For now, see if you’d prefer that to holding on to this want.',
       button('I’m willing','wants-step','2')+button('I’m unsure','wants-step','2')],
     2:['Step 2 of 3 · Decide','I decide to release and be imperturbable.',
-      'The workbook asks you to decide that you can use the method and be imperturbable — at ease, even when something bothers you. Make that decision before going on.',
+      'Decide that you can release and be imperturbable — at ease, even when something bothers you.',
       button('I decide to release','wants-step','3')+button('There is resistance','resistance')],
   };
   if (step === 3) return wantPicker(() => beginRelease('want'));
@@ -202,8 +211,9 @@ function check() {
     button('Release again','repeat') + button('Return home','home'));
 }
 function goalReaction() {
+  selectedWant = '';
   screen('Releasing goals','Read your goal slowly. What comes up?',
-    '<p>What’s your first reaction? Write it below if you’d like.</p>'+field('Your reaction (optional)',session.reaction||''),
+    '<p>Read the goal, then notice the first thought, feeling or sensation. You keep the goal and work with the feeling it brings up.</p>'+field('Your reaction (optional)',session.reaction||''),
     button('Release this feeling','goal-feeling')+button('Find the want underneath','goal-want'));
 }
 function topics() {
@@ -262,7 +272,7 @@ const actions = {
     button('Try again','crane-repeat')+button('Continue','crane-advance')),
   advance:()=>{releasing.index++;releaseQuestion();},
   unwilling,
-  'release-effort':()=>{selectedWant='control';beginRelease('want');},
+  'release-effort':()=>{selectedWant='control';beginRelease('want',afterRelease||check);},
   check,
   repeat:()=>{if(session.path==='quick')return quick();if(session.path==='topics')return topicQuestion();if(session.path==='goals')return goalReaction();if(session.path==='wants')return wantsStep(3);beginRelease('feeling');},
   stuck:()=>screen('Stuckness','Could you let go of wanting to control this stuckness?',
@@ -295,6 +305,12 @@ document.addEventListener('click',event=>{
 });
 const params=new URLSearchParams(location.search);
 const requested=params.get('practice');
-const routes={quick:'feelings',welcoming:'quick',wants:'wants',goal:'goals',stuck:'quick'};
-if(routes[requested])start(routes[requested]);else home();
+const routes={feelings:'feelings',quick:'feelings',welcoming:'quick',wants:'wants',topics:'topics',goal:'goals',goals:'goals',stuck:'quick'};
+
+if(requested === 'stuck') {
+  session = {path:'feelings',focus:'Trying to force a release'};
+  actions.stuck();
+} else if(routes[requested]) start(routes[requested]);
+else home();
+
 
