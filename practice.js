@@ -4,7 +4,8 @@ const paths = [
   ['wants', 'Releasing wants', 'Larry Crane’s six-step method.'],
   ['topics', 'Releasing by topics', 'Work through money, relationships or a topic of your own.'],
   ['goals', 'Releasing goals', 'Write a goal, then work with whatever comes up.'],
-  ['quick', 'Quick release', 'Welcome the feeling and allow it to be here.']
+  ['quick', 'Quick release', 'Welcome the feeling and allow it to be here.'],
+  ['triple', 'Triple welcoming', 'Welcome the feeling, the urge to change it, and the story of “me”.']
 ];
 const topicChoices = {
   money: 'having money', approval: 'receiving approval', relationships: 'being in a relationship',
@@ -61,11 +62,23 @@ function cloudExample() {
   </details>`;
 }
 
+function practiceHelp() {
+  return `<details class="practice-help"><summary>Having trouble?</summary>
+    <details><summary>I’m trying to make the feeling disappear.</summary><p>Notice the urge to get rid of it. Could that urge be here for a moment too? You don’t have to make yourself relax.</p></details>
+    <details><summary>I don’t feel anything.</summary><p>No need to create a feeling. Notice whatever is here, even blankness, numbness or uncertainty.</p></details>
+    <details><summary>I keep analysing this.</summary><p>Could you let go of needing to figure this out, just for this moment? Return to the feeling or sensation you actually notice. You can come back to practical questions later.</p></details>
+    <details><summary>I don’t want to let go.</summary><p>An honest “no” is okay. Allow the unwillingness too, without trying to talk yourself out of it.</p></details>
+    <details><summary>How do I know if I’ve released?</summary><p>It may be a small easing, a quieter thought or less need to change something. There’s no required sensation. You don’t need to check constantly or reach a completely empty mind.</p><a href="./guide.html#experience" target="_blank" rel="noopener">Read more in the field guide ↗</a></details>
+    <p>If you’d like to stop, tap Allowing at the top to return home.</p>
+  </details>`;
+}
 function screen(label, title, body, controls) {
   render(`<section class="session"><span class="eyebrow">${escapeText(label)}</span>
     ${focusLabel()}<h2 tabindex="-1">${escapeText(title)}</h2>${body}
     <div class="answers">${controls}</div>
+    ${['Triple welcoming','Self-approval','Exploring love'].some(name=>label.startsWith(name)) ? (session.path === 'triple' ? cloudExample() : pencilExample() + cloudExample()) : ''}
     ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || (label.startsWith('Release the want') || label.startsWith('Quick release')) ? (session.path === 'quick' ? cloudExample() : pencilExample() + cloudExample()) : ''}
+    ${session.focus && !['Your practice','Topic exercise complete','After this round'].includes(label) ? practiceHelp() : ''}
     </section>`);
 }
 function field(label, value = '', placeholder = '') {
@@ -94,6 +107,7 @@ function start(path) {
     feelings:['What are you feeling?','Write the feeling, or what happened.','For example, hurt after a conversation'],
     wants:['What are you holding on to?','Write what’s on your mind. You’ll choose the want in a moment.','For example, needing someone to understand me'],
     goals:['What would you allow yourself to experience?','Write one goal in the present. Try “I allow myself to…” followed by what you’d like to have or experience.','I allow myself to enjoy…'],
+    triple:['What would you like to welcome?','Write a situation, feeling or recurring thought. You’ll explore it in three parts.','For example, worrying about money'],
     quick:['What are you feeling?','Write the feeling, or what’s bringing it up.','For example, feeling nervous about a presentation']
   };
   const [title,copy,placeholder] = titles[path];
@@ -116,6 +130,7 @@ function saveFocus() {
   if (session.path === 'goals') return goalReaction();
   if (session.path === 'topics') return chooseTopicMode();
   if (session.path === 'quick') return quick();
+  if (session.path === 'triple') return tripleWelcome(0);
   screen('Notice','Start with the feeling.',
     '<p>Think about what you wrote. Let yourself feel it before you continue.</p>',
     button('Continue','feelings-round','',true));
@@ -218,7 +233,9 @@ function goalReaction() {
 }
 function topics() {
   screen('Releasing by topics','What topic would you like to explore?',
-    '<p>Pick a topic or write your own.</p>'+
+    '<p>These two practices have their own questions.</p>'+
+    `<div class="special-topics">${[['self','Self-approval','For being hard on yourself.'],['love','Exploring love','Explore loving and wanting to be loved.']].map(([key,title,copy])=>`<button class="special-topic" data-action="special-start" data-value="${key}"><strong>${title}</strong><small>${copy}</small><span>Guided practice →</span></button>`).join('')}</div>`+
+    '<h3>Attachment and aversion</h3><p>Pick a topic or write your own.</p>'+
     `<div class="topic-options">${Object.entries(topicChoices).map(([key,value])=>button(value,'topic-preset',key)).join('')}</div>`+
     field('Your topic','','For example, having money or being accepted'),
     button('Use my topic','save-focus','',true));
@@ -255,7 +272,65 @@ function topicQuestion() {
     field('What comes up? (optional)',session.answers[session.topicIndex]||''),
     button('Choose the want','topic-release','',true)+button('Next question','topic-next'));
 }
+
+function tripleWelcome(index) {
+  const steps = [
+    ['Could you allow what you’re experiencing?', 'Bring your focus to mind. Let the thoughts, feelings, memories and sensations be here for a moment. You don’t have to agree with a thought to allow it.'],
+    ['Could you allow the urge to change it?', 'Notice any wish to fix this, push it away or make it different. Let that urge be here too. This is about your experience right now; you can still take practical action.'],
+    ['Could you allow the sense of “me” in this?', 'Notice whether this feels like “my problem” or says something about who you are, such as “I’m a failure.” Allow that sense of identity too. You don’t have to believe the label or find one if nothing comes up.']
+  ];
+  const [title,copy] = steps[index];
+  screen(`Triple welcoming · ${index+1} of 3`, title, `<p>${copy}</p><p>Take whatever time you need before continuing.</p>`,
+    button('Continue', index === 2 ? 'check' : 'triple-next', String(index+1)));
+}
+function specialStart(kind) {
+  selectedWant = '';
+  session = {path:'topics', special:kind, focus:'', reaction:''};
+  const self = kind === 'self';
+  screen(self ? 'Self-approval' : 'Exploring love', self ? 'What are you being hard on yourself about?' : 'Who or what comes to mind?',
+    `<p>${self ? 'Write the situation or the words you keep saying to yourself. This practice follows Larry Crane’s questions about self-disapproval and approval.' : 'Choose yourself, someone else or a situation. This exploration draws on Lester Levenson’s approach to experiencing love. Choose something you feel ready to explore.'}</p>` +
+    field('Your focus','',self ? 'For example, I should have done better' : 'For example, wanting someone to love me') +
+    (self ? '' : '<p>You can keep your boundaries. There’s no need to excuse what happened or contact anyone.</p>'),
+    button('Begin','special-focus','',true));
+}
+function saveSpecialFocus() {
+  const entry=app.querySelector('#entry');
+  if(!entry.value.trim()) {app.querySelector('#error').textContent='Write what you’d like to explore.';entry.focus();return;}
+  session.focus=entry.value.trim();
+  specialNotice();
+}
+function specialNotice() {
+  selectedWant='';
+  screen(session.special === 'self' ? 'Self-approval' : 'Exploring love', 'What comes up as you read this?',
+    '<p>Notice the feeling or sensation that goes with it. There’s no need to explain it.</p>'+field('Your reaction (optional)',session.reaction||''),
+    button('Continue','special-reaction'));
+}
+function specialStep(index) {
+  const self = session.special === 'self';
+  const steps = self ? [
+    ['Could I let go of disapproving of myself right now?', 'Notice the criticism or feeling that you’re not enough. See whether you can loosen your hold on it, even a little.'],
+    ['Could I give myself approval, for no reason?', 'You don’t have to earn it or list reasons you deserve it. See if you can allow yourself some approval as you are. No need to manufacture a positive feeling.']
+  ] : [
+    ['Am I wanting love or approval here?', 'Notice whether you need someone to love, understand or approve of you before you can feel okay. Whatever you find is something you can work with.'],
+    ['Could I let go of wanting their approval?', 'Allow the feeling first. See whether you can loosen the need to get approval from this person, or from yourself. You can still value love and connection.'],
+    ['Could I change this feeling to love?', 'Lester explored whether he could experience a loving feeling within himself. Try the question without forcing an answer. A little warmth may be available, or it may not be right now. Both are okay.']
+  ];
+  const [title,copy] = steps[index];
+  screen(`${self?'Self-approval':'Exploring love'} · ${index+1} of ${steps.length}`,title,`<p>${copy}</p>`+
+    (!self && index===2 ? '<p>This doesn’t ask you to approve of someone’s behaviour, forgive them or reconnect.</p>' : ''),
+    button('Yes','special-next',String(index+1))+button('Not right now','special-next',String(index+1)));
+}
+function specialNext(index) {
+  if(index >= (session.special==='self'?2:3)) return check();
+  specialStep(index);
+}
+
 const actions = {
+  'triple-next':value=>tripleWelcome(Number(value)),
+  'special-start':specialStart,
+  'special-focus':saveSpecialFocus,
+  'special-reaction':()=>{session.reaction=app.querySelector('#entry').value.trim();specialStep(0);},
+  'special-next':value=>specialNext(Number(value)),
   home, start, 'save-focus':saveFocus, 'welcome-feeling':welcomeFeeling,
   'feelings-round':()=>beginRelease('feeling'),
   'wants-step':value=>wantsStep(Number(value)),
@@ -274,7 +349,7 @@ const actions = {
   unwilling,
   'release-effort':()=>{selectedWant='control';beginRelease('want',afterRelease||check);},
   check,
-  repeat:()=>{if(session.path==='quick')return quick();if(session.path==='topics')return topicQuestion();if(session.path==='goals')return goalReaction();if(session.path==='wants')return wantsStep(3);beginRelease('feeling');},
+  repeat:()=>{if(session.special)return specialNotice();if(session.path==='triple')return tripleWelcome(0);if(session.path==='quick')return quick();if(session.path==='topics')return topicQuestion();if(session.path==='goals')return goalReaction();if(session.path==='wants')return wantsStep(3);beginRelease('feeling');},
   stuck:()=>screen('Stuckness','Could you let go of wanting to control this stuckness?',
     '<p>Notice the effort you’re putting into this. See if you can let some of it go.</p>',
     button('Continue','check')+button('Return to my practice','repeat')),
@@ -305,12 +380,14 @@ document.addEventListener('click',event=>{
 });
 const params=new URLSearchParams(location.search);
 const requested=params.get('practice');
-const routes={feelings:'feelings',quick:'feelings',welcoming:'quick',wants:'wants',topics:'topics',goal:'goals',goals:'goals',stuck:'quick'};
+const routes={feelings:'feelings',quick:'feelings',welcoming:'quick',wants:'wants',topics:'topics',triple:'triple',goal:'goals',goals:'goals',stuck:'quick'};
 
 if(requested === 'stuck') {
   session = {path:'feelings',focus:'Trying to force a release'};
   actions.stuck();
-} else if(routes[requested]) start(routes[requested]);
+} else if(requested === 'self-approval' || requested === 'exploring-love') specialStart(requested === 'self-approval' ? 'self' : 'love');
+else if(routes[requested]) start(routes[requested]);
 else home();
+
 
 

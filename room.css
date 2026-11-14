@@ -115,3 +115,15 @@ summary { cursor: pointer; min-height: 44px; display: list-item; padding: 10px 0
   button { transition: none; }
   button:active, button.is-activating { transform: none; }
 }
+
+
+.special-topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 22px 0 30px; }
+.special-topic { margin: 0; border-radius: 14px; padding: 18px; text-align: left; background: #edf0e6; }
+.special-topic strong { display: block; font: 24px/1.2 Georgia, serif; }
+.special-topic small { display: block; margin: 8px 0 14px; }
+.special-topic span { font-size: 13px; color: #365f56; }
+.practice-help { max-width: 570px; margin: 20px auto 0; text-align: left; font-size: 14px; }
+.practice-help summary { font: inherit; color: #365f56; }
+.practice-help > details { padding: 0 12px; border-left: 2px solid #dce0d4; margin: 8px 0; }
+.practice-help p { margin: 6px 0 14px; }
+@media (max-width: 600px) { .special-topics { grid-template-columns: 1fr; } }
