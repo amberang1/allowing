@@ -4,7 +4,7 @@ const paths = [
   ['wants', 'Releasing wants', 'Start with the first three steps of Larry Crane’s method.'],
   ['topics', 'Releasing by topics', 'Work through money, relationships or a topic of your own.'],
   ['goals', 'Releasing goals', 'Write a goal, then work with whatever comes up.'],
-  ['quick', 'Quick release', 'A shorter release when you already know what to do.']
+  ['quick', 'Quick release', 'Welcome the feeling and allow it to be here.']
 ];
 const topicChoices = {
   money: 'having money', approval: 'receiving approval', relationships: 'being in a relationship',
@@ -45,7 +45,7 @@ function pencilExample() {
       <img src="./pencil-release.webp" width="1774" height="887"
         alt="Three drawings: a hand grips a pencil, opens with the pencil resting freely, then lets the pencil drop." loading="lazy">
       <div class="pencil-captions"><span>Hold it</span><span>Open your hand</span><span>Let it drop</span></div>
-      <figcaption>In this exercise, imagine the feeling as a pencil in your hand. The pencil is something you’re holding, rather than part of your hand. Open your fingers and it can rest there freely. Then let it drop. Try the same with the feeling: let it be there, then see if you can relax your hold without pushing it away.</figcaption>
+      <figcaption>${session.path === 'quick' ? 'Picture the feeling as a pencil resting in your open hand. Let it be there. If you notice yourself gripping or trying to make it drop, allow that reaction too.' : 'In this exercise, imagine the feeling as a pencil in your hand. The pencil is something you’re holding, rather than part of your hand. Open your fingers and it can rest there freely. Then let it drop. Try the same with the feeling: let it be there, then see if you can relax your hold without pushing it away.'}</figcaption>
     </figure>
     <p class="pencil-source">Adapted from The Insider’s Guide to the Sedona Method, p. 4.</p>
   </details>`;
@@ -54,7 +54,7 @@ function screen(label, title, body, controls) {
   render(`<section class="session"><span class="eyebrow">${escapeText(label)}</span>
     ${focusLabel()}<h2 tabindex="-1">${escapeText(title)}</h2>${body}
     <div class="answers">${controls}</div>
-    ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || label.startsWith('Release the want') ? pencilExample() : ''}
+    ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || (label.startsWith('Release the want') || label.startsWith('Quick release')) ? pencilExample() : ''}
     </section>`);
 }
 function field(label, value = '', placeholder = '') {
@@ -76,7 +76,7 @@ function start(path) {
     feelings:['What are you feeling?','Write the feeling, or what happened.','For example, hurt after a conversation'],
     wants:['What are you holding on to?','Write what’s on your mind. You’ll choose the want in a moment.','For example, needing someone to understand me'],
     goals:['What would you allow yourself to experience?','Write one goal. You can begin with “I allow myself to…”','I allow myself to enjoy…'],
-    quick:['What would you like to loosen?','Write what you’d like to work on.','What is here right now?']
+    quick:['What are you feeling?','Write the feeling, or what’s bringing it up.','For example, feeling nervous about a presentation']
   };
   const [title,copy,placeholder] = titles[path];
   screen(paths.find(p=>p[0]===path)[1],title,`<p>${copy}</p>`+field('Your focus','',placeholder)+(path==='feelings'?'<p><a href="./feelings.html" target="_blank" rel="noopener">Need help naming the feeling? View the feelings charts ↗</a></p>':''),button('Begin','save-focus','',true));
@@ -174,8 +174,14 @@ function unwilling() {
     button('Continue with the questions','advance')+button('Release the effort','release-effort'));
 }
 function quick() {
-  screen('Quick release','Could you loosen your grip on this, just a little?',
-    '<p>Think about what you wrote, then try letting go.</p>',
+  screen('Quick release · 1 of 2','Notice the feeling.',
+    '<p>Think about what you wrote. Notice the feeling itself, or any sensation that goes with it.</p>',
+    button('Continue','welcome-feeling'));
+}
+function welcomeFeeling() {
+  screen('Quick release · 2 of 2','Let the feeling be here.',
+    '<p>You can say to yourself, “I allow this feeling to be here.” Let yourself feel it for a moment.</p>' +
+    '<p>If you notice “I want it gone,” allow that reaction too. Stay with this as long as you like, whether the feeling changes or stays the same.</p>',
     button('Done','check'));
 }
 function check() {
@@ -227,7 +233,7 @@ function topicQuestion() {
     button('Choose the want','topic-release','',true)+button('Next question','topic-next'));
 }
 const actions = {
-  home, start, 'save-focus':saveFocus,
+  home, start, 'save-focus':saveFocus, 'welcome-feeling':welcomeFeeling,
   'feelings-round':()=>beginRelease('feeling'),
   'wants-step':value=>wantsStep(Number(value)),
   resistance:()=>{selectedWant='control';beginRelease('want',()=>wantsStep(3));},
@@ -276,6 +282,6 @@ document.addEventListener('click',event=>{
 });
 const params=new URLSearchParams(location.search);
 const requested=params.get('practice');
-const routes={quick:'feelings',wants:'wants',goal:'goals',stuck:'quick'};
+const routes={quick:'feelings',welcoming:'quick',wants:'wants',goal:'goals',stuck:'quick'};
 if(routes[requested])start(routes[requested]);else home();
 
