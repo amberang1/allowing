@@ -42,7 +42,7 @@ function pencilExample() {
   return `<details class="pencil-example">
     <summary>See the pencil example</summary>
     <figure>
-      <img src="/pencil-release.webp" width="1774" height="887"
+      <img src="./pencil-release.webp" width="1774" height="887"
         alt="Three drawings: a hand grips a pencil, opens with the pencil resting freely, then lets the pencil drop." loading="lazy">
       <div class="pencil-captions"><span>Hold it</span><span>Open your hand</span><span>Let it drop</span></div>
       <figcaption>Think of a pencil in your hand. When you open your fingers, you can see it’s separate from your hand. Then you can let it drop. Try that same easing of your hold with the feeling you’re working on.</figcaption>
@@ -66,7 +66,7 @@ function home() {
   render(`<div class="hero"><span class="eyebrow">A little room</span><h1 tabindex="-1">What would you<br>like to release?</h1><p>Pick where you’d like to start.</p></div>
     <div class="path-list">${paths.map(([key,label,description],i)=>`<button class="path-card" data-action="start" data-value="${key}">
       <span class="path-number">0${i+1}</span><span><strong>${label}</strong><small>${description}</small></span><span aria-hidden="true">→</span></button>`).join('')}</div>
-    <p><a href="/guide.html">Read the field guide</a></p>`);
+    <p><a href="./guide.html">Read the field guide</a></p>`);
 }
 function start(path) {
   selectedWant = '';
