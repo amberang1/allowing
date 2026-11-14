@@ -82,3 +82,11 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 .brand:hover { color: #365f56; }
 .brand:focus-visible { outline: 2px solid #78978a; outline-offset: 4px; }
 .brand:active { opacity: .65; }
+
+.pencil-example{margin:24px auto 0;max-width:570px;border:0;padding:0;text-align:left}
+.pencil-example summary{font:14px/1.6 system-ui;color:#365f56;padding:8px 0}
+.pencil-example figure{margin:12px 0 0}
+.pencil-example img{display:block;width:100%;height:auto;border-radius:12px}
+.pencil-captions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;font-size:12px;margin:10px 0 16px}
+.pencil-example figcaption{font-size:14px;line-height:1.65;color:#536761}
+.pencil-example .pencil-source{font-size:11px;margin-bottom:0}

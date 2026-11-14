@@ -38,10 +38,24 @@ function focusLabel() {
     ${want ? `<small>Type of want</small><p>${escapeText(want[0].toUpperCase()+want.slice(1))}</p>` : ''}
   </aside>`;
 }
+function pencilExample() {
+  return `<details class="pencil-example">
+    <summary>See the pencil example</summary>
+    <figure>
+      <img src="/pencil-release.webp" width="1774" height="887"
+        alt="Three drawings: a hand grips a pencil, opens with the pencil resting freely, then lets the pencil drop." loading="lazy">
+      <div class="pencil-captions"><span>Hold it</span><span>Open your hand</span><span>Let it drop</span></div>
+      <figcaption>Think of a pencil in your hand. When you open your fingers, you can see it’s separate from your hand. Then you can let it drop. Try that same easing of your hold with the feeling you’re working on.</figcaption>
+    </figure>
+    <p class="pencil-source">Adapted from The Insider’s Guide to the Sedona Method, p. 4.</p>
+  </details>`;
+}
 function screen(label, title, body, controls) {
   render(`<section class="session"><span class="eyebrow">${escapeText(label)}</span>
     ${focusLabel()}<h2 tabindex="-1">${escapeText(title)}</h2>${body}
-    <div class="answers">${controls}</div></section>`);
+    <div class="answers">${controls}</div>
+    ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || label.startsWith('Release the want') ? pencilExample() : ''}
+    </section>`);
 }
 function field(label, value = '', placeholder = '') {
   return `<label for="entry">${label}</label><textarea id="entry" rows="3" maxlength="1000" placeholder="${escapeText(placeholder)}">${escapeText(value)}</textarea><p id="error" role="status"></p>`;
