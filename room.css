@@ -90,3 +90,17 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 .pencil-captions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;font-size:12px;margin:10px 0 16px}
 .pencil-example figcaption{font-size:14px;line-height:1.65;color:#536761}
 .pencil-example .pencil-source{font-size:11px;margin-bottom:0}
+
+
+.emotion-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:26px 0}
+.emotion-card{border:1px solid #dce0d4;background:#eeeee5;padding:20px;border-radius:16px}
+.emotion-card h3{margin:0 0 14px}
+.feeling-words{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0}
+.feeling-words li{background:#fffdf7;border-radius:6px;padding:3px 8px;font-size:13px;overflow-wrap:anywhere}
+.behaviour-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.behaviour-grid h3{font-size:22px;margin-bottom:10px}
+.behaviour-grid ul{padding-left:20px}
+.emotion-detail{scroll-margin-top:20px}
+.source-note{font-size:12px}
+#patterns{margin-top:50px}
+@media(max-width:700px){

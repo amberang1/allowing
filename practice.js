@@ -79,7 +79,7 @@ function start(path) {
     quick:['What would you like to loosen?','Write what you’d like to work on.','What is here right now?']
   };
   const [title,copy,placeholder] = titles[path];
-  screen(paths.find(p=>p[0]===path)[1],title,`<p>${copy}</p>`+field('Your focus','',placeholder),button('Begin','save-focus','',true));
+  screen(paths.find(p=>p[0]===path)[1],title,`<p>${copy}</p>`+field('Your focus','',placeholder)+(path==='feelings'?'<p><a href="./feelings.html" target="_blank" rel="noopener">Need help naming the feeling? View the feelings charts ↗</a></p>':''),button('Begin','save-focus','',true));
 }
 function saveFocus() {
   const entry = app.querySelector('#entry');
@@ -103,9 +103,9 @@ function wantsStep(step) {
     1:['Step 1 of 3 · Choose freedom','Would you like a little more inner freedom here?',
       'Larry calls this “imperturbability”: being at ease even when things don’t go your way. For now, see if you’d prefer that to holding on to this want.',
       button('I’m willing','wants-step','2')+button('I’m unsure','wants-step','2')],
-    2:['Step 2 of 3 · Decide to practise','Could you give releasing a try?',
-      'Decide to try it. You can work with whatever comes up next.',
-      button('I’ll try','wants-step','3')+button('There is resistance','resistance')],
+    2:['Step 2 of 3 · Decide','I decide to release and be imperturbable.',
+      'The workbook asks you to decide that you can use the method and be imperturbable — at ease, even when something bothers you. Make that decision before going on.',
+      button('I decide to release','wants-step','3')+button('There is resistance','resistance')],
   };
   if (step === 3) return wantPicker(() => beginRelease('want'));
   const [label,title,copy,controls] = content[step];
@@ -278,3 +278,4 @@ const params=new URLSearchParams(location.search);
 const requested=params.get('practice');
 const routes={quick:'feelings',wants:'wants',goal:'goals',stuck:'quick'};
 if(routes[requested])start(routes[requested]);else home();
+
