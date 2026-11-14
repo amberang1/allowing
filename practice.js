@@ -50,11 +50,24 @@ function pencilExample() {
     <p class="pencil-source">Adapted from The Insider’s Guide to the Sedona Method, p. 4.</p>
   </details>`;
 }
+function cloudExample() {
+  return `<details class="pencil-example">
+    <summary>See the cloud example</summary>
+    <figure>
+      <img src="./cloud-welcoming.webp" width="1774" height="887"
+        alt="Three views of a cloud drifting and changing shape in an open sky. The cloud remains present in each view." loading="lazy">
+      <div class="pencil-captions"><span>Notice it</span><span>Let it be here</span><span>Let it move in its own time</span></div>
+      <figcaption>Imagine this feeling as a cloud in the sky. Let it be here. It might move, change shape or stay for a while. You can leave it alone.</figcaption>
+    </figure>
+    <p class="pencil-source">Based on the cloud analogy in <a href="https://www.sedona.com/how-it-works" target="_blank" rel="noopener">The Sedona Method — How It Works</a>.</p>
+  </details>`;
+}
+
 function screen(label, title, body, controls) {
   render(`<section class="session"><span class="eyebrow">${escapeText(label)}</span>
     ${focusLabel()}<h2 tabindex="-1">${escapeText(title)}</h2>${body}
     <div class="answers">${controls}</div>
-    ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || (label.startsWith('Release the want') || label.startsWith('Quick release')) ? pencilExample() : ''}
+    ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || (label.startsWith('Release the want') || label.startsWith('Quick release')) ? (session.path === 'quick' ? cloudExample() : pencilExample()) : ''}
     </section>`);
 }
 function field(label, value = '', placeholder = '') {
