@@ -1,5 +1,4 @@
 const app = document.querySelector('#app');
-const pausePanel = document.querySelector('#pause-panel');
 const paths = [
   ['feelings', 'Releasing feelings', 'The three Sedona questions, one at a time.'],
   ['wants', 'Releasing wants', 'Guidance through the first three of the six steps.'],
@@ -16,7 +15,6 @@ let session = {};
 let selectedWant = '';
 let releasing = {};
 let afterRelease;
-let pausedControl;
 let pending = false;
 
 function escapeText(value) {
@@ -27,7 +25,6 @@ function button(label, action, value = '', primary = false) {
 }
 function render(html) {
   app.hidden = false;
-  pausePanel.hidden = true;
   app.innerHTML = html;
   app.querySelector('h1, h2')?.focus({preventScroll:true});
   window.scrollTo(0, 0);
@@ -39,8 +36,7 @@ function focusLabel() {
 function screen(label, title, body, controls) {
   render(`<section class="session"><span class="eyebrow">${escapeText(label)}</span>
     ${focusLabel()}<h2 tabindex="-1">${escapeText(title)}</h2>${body}
-    <div class="answers">${controls}</div>
-    <div class="session-tools">${button('Pause','pause')}${button('Finish here','finish')}</div></section>`);
+    <div class="answers">${controls}</div></section>`);
 }
 function field(label, value = '', placeholder = '') {
   return `<label for="entry">${label}</label><textarea id="entry" rows="3" maxlength="1000" placeholder="${escapeText(placeholder)}">${escapeText(value)}</textarea><p id="error" role="status"></p>`;
@@ -124,19 +120,11 @@ function unwilling() {
 function quick() {
   screen('Quick release','Could you loosen your grip on this, just a little?',
     '<p>Notice what you are holding. Allow it for a moment, then see whether you can soften the hold.</p>',
-    button('I’ve taken a moment','check')+button('I feel stuck','stuck'));
+    button('I’ve taken a moment','check'));
 }
 function check() {
-  screen('Check in','What is here now?','<p>Notice any change, or no change.</p>',
-    button('A little lighter','complete')+button('About the same','stuck')+
-    button('Something different','new-reaction')+button('I’d like to pause','pause'));
-}
-function complete() {
-  const next = session.path === 'topics' ? button('Next topic question','topic-next','',true)
-    : session.path === 'goals' ? button('Read the goal again','goal-reaction','',true)
-    : button('Another round','repeat','',true);
-  screen('A moment to notice','What would you like to do next?','<p>You can continue or stop here.</p>',
-    next+button('Finish here','finish'));
+  screen('Your practice', 'Would you like to release again?', '',
+    button('Release again','repeat') + button('Return home','home'));
 }
 function goalReaction() {
   screen('Releasing goals','Read your goal slowly. What comes up?',
@@ -172,20 +160,13 @@ function topicQuestion() {
     `Could you let go of your aversion to ${topic}?`
   ];
   if (session.topicIndex >= questions.length) {
-    return screen('Topic exercise complete','Notice how you feel about the topic now.',
-      '<p>You can explore the other side, repeat this exercise or finish.</p>',
-      button('Explore '+(attachment?'aversion':'attachment'),'topic-mode',attachment?'aversion':'attachment')+
-      button('Repeat this exercise','topic-mode',session.topicMode));
+    return screen('Topic exercise complete','Would you like to release again?', '',
+      button('Release again','topic-mode',session.topicMode) + button('Return home','home'));
   }
   screen(`${attachment?'Attachment':'Aversion'} · ${session.topicIndex+1} of 5`,questions[session.topicIndex],
     '<p>Notice the reaction and the want underneath. Work with one reaction at a time.</p>'+
     field('What comes up? (optional)',session.answers[session.topicIndex]||''),
     button('Find and release the want','topic-release','',true)+button('Next question','topic-next'));
-}
-function finish() {
-  screen('Close your practice','Enough for now.',
-    '<p>Notice how you feel. Rest or choose one useful next action.</p>'+field('Optional reflection or next action'),
-    button('Return home','home','',true));
 }
 const actions = {
   home, start, 'save-focus':saveFocus,
@@ -196,9 +177,8 @@ const actions = {
   advance:()=>{releasing.index++;releaseQuestion();},
   unwilling,
   'release-effort':()=>{selectedWant='control';beginRelease('want');},
-  check, complete,
+  check,
   repeat:()=>{if(session.path==='quick')return quick();if(session.path==='topics')return topicQuestion();if(session.path==='goals')return goalReaction();if(session.path==='wants')return wantsStep(3);beginRelease('feeling');},
-  'new-reaction':()=>session.path==='goals'?goalReaction():session.path==='topics'?topicQuestion():wantPicker(()=>beginRelease(selectedWant?'want':'feeling')),
   stuck:()=>screen('Stuckness','Could you let go of wanting to control this stuckness?',
     '<p>Allow the effort itself to be here. See whether you can soften it.</p>',
     button('Take a moment, then check','check')+button('Return to my practice','repeat')),
@@ -214,9 +194,7 @@ const actions = {
   }));},
   'topic-question':topicQuestion,
   'topic-next':()=>{const entry=app.querySelector('#entry');if(entry)session.answers[session.topicIndex]=entry.value;session.topicIndex++;topicQuestion();},
-  pause:(_,control)=>{pausedControl=control;app.hidden=true;pausePanel.hidden=false;pausePanel.querySelector('h2').focus();},
-  resume:()=>{app.hidden=false;pausePanel.hidden=true;pausedControl?.focus();},
-  finish
+
 };
 document.addEventListener('click',event=>{
   const control=event.target.closest('button[data-action]');
