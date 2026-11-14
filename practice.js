@@ -74,7 +74,7 @@ function field(label, value = '', placeholder = '') {
 function home() {
   session = {};
   selectedWant = '';
-  render(`<div class="hero"><span class="eyebrow">A little room</span><h1 tabindex="-1">What would you<br>like to release?</h1><p>Pick where you’d like to start.</p></div>
+  render(`<div class="hero"><span class="eyebrow">Allowing</span><h1 tabindex="-1">What would you<br>like to release?</h1><p>Pick where you’d like to start.</p></div>
     <div class="path-list">${paths.map(([key,label,description],i)=>`<button class="path-card" data-action="start" data-value="${key}">
       <span class="path-number">0${i+1}</span><span><strong>${label}</strong><small>${description}</small></span><span aria-hidden="true">→</span></button>`).join('')}</div>
     <p><a href="./guide.html">Read the field guide</a></p>`);
