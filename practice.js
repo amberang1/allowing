@@ -1,10 +1,10 @@
 const app = document.querySelector('#app');
 const paths = [
   ['feelings', 'Releasing feelings', 'The three Sedona questions, one at a time.'],
-  ['wants', 'Releasing wants', 'Guidance through the first three of the six steps.'],
-  ['topics', 'Releasing by topics', 'Explore attachment and aversion around money, relationships and more.'],
-  ['goals', 'Releasing goals', 'Read your goal and release the reactions it brings up.'],
-  ['quick', 'Quick release', 'A single invitation to loosen your grip.']
+  ['wants', 'Releasing wants', 'Start with the first three steps of Larry Crane’s method.'],
+  ['topics', 'Releasing by topics', 'Work through money, relationships or a topic of your own.'],
+  ['goals', 'Releasing goals', 'Write a goal, then work with whatever comes up.'],
+  ['quick', 'Quick release', 'A shorter release when you already know what to do.']
 ];
 const topicChoices = {
   money: 'having money', approval: 'receiving approval', relationships: 'being in a relationship',
@@ -49,7 +49,7 @@ function field(label, value = '', placeholder = '') {
 function home() {
   session = {};
   selectedWant = '';
-  render(`<div class="hero"><span class="eyebrow">A little room</span><h1 tabindex="-1">What would you<br>like to release?</h1><p>Choose a practice. Take it one question at a time.</p></div>
+  render(`<div class="hero"><span class="eyebrow">A little room</span><h1 tabindex="-1">What would you<br>like to release?</h1><p>Pick where you’d like to start.</p></div>
     <div class="path-list">${paths.map(([key,label,description],i)=>`<button class="path-card" data-action="start" data-value="${key}">
       <span class="path-number">0${i+1}</span><span><strong>${label}</strong><small>${description}</small></span><span aria-hidden="true">→</span></button>`).join('')}</div>
     <p><a href="/guide.html">Read the field guide</a></p>`);
@@ -59,10 +59,10 @@ function start(path) {
   session = {path, focus:'', topicIndex:0, topicMode:'attachment', answers:{}};
   if (path === 'topics') return topics();
   const titles = {
-    feelings:['What are you feeling?','Name a feeling or the situation bringing it up.','For example, hurt after a conversation'],
-    wants:['What are you holding on to?','Name an issue where you feel a need for approval, control or security.','For example, needing someone to understand me'],
+    feelings:['What are you feeling?','Write the feeling, or what happened.','For example, hurt after a conversation'],
+    wants:['What are you holding on to?','Write what’s on your mind. You’ll choose the want in a moment.','For example, needing someone to understand me'],
     goals:['What would you allow yourself to experience?','Write one goal. You can begin with “I allow myself to…”','I allow myself to enjoy…'],
-    quick:['What would you like to loosen?','A feeling, thought or inner demand. A few words are enough.','What is here right now?']
+    quick:['What would you like to loosen?','Write what you’d like to work on.','What is here right now?']
   };
   const [title,copy,placeholder] = titles[path];
   screen(paths.find(p=>p[0]===path)[1],title,`<p>${copy}</p>`+field('Your focus','',placeholder),button('Begin','save-focus','',true));
@@ -71,7 +71,7 @@ function saveFocus() {
   const entry = app.querySelector('#entry');
   const value = entry.value.trim();
   if (!value) {
-    app.querySelector('#error').textContent = 'Add a few words to focus on.';
+    app.querySelector('#error').textContent = 'Type what you’d like to release.';
     entry.focus();
     return;
   }
@@ -80,17 +80,17 @@ function saveFocus() {
   if (session.path === 'goals') return goalReaction();
   if (session.path === 'topics') return chooseTopicMode();
   if (session.path === 'quick') return quick();
-  screen('Notice','Give the feeling a little room.',
-    '<p>Notice how it feels right now. Let it be here for a moment.</p>',
+  screen('Notice','Start with the feeling.',
+    '<p>Think about what you wrote. Let yourself feel it before you continue.</p>',
     button('Continue','feelings-round','',true));
 }
 function wantsStep(step) {
   const content = {
     1:['Step 1 of 3 · Choose freedom','Would you like a little more inner freedom here?',
-      'The course calls this imperturbability — inner steadiness. Notice the possibility of loosening your grip on approval, control or security.',
+      'Larry calls this “imperturbability”: being at ease even when things don’t go your way. For now, see if you’d prefer that to holding on to this want.',
       button('I’m willing','wants-step','2')+button('I’m unsure','wants-step','2')],
     2:['Step 2 of 3 · Decide to practise','Could you give releasing a try?',
-      'You can begin with a small willingness to let go. Take this one moment at a time.',
+      'Decide to try it. You can work with whatever comes up next.',
       button('I’ll try','wants-step','3')+button('There is resistance','resistance')],
   };
   if (step === 3) return wantPicker(() => beginRelease('want'));
@@ -103,7 +103,7 @@ function wantPicker(next) {
   screen('Notice the want','What does the inner demand feel like?',
     '<p>Approval — “I need love or agreement.”<br>Control — “This must go my way.”<br>Security — “I need a guarantee.”</p>',
     ['approval','control','security'].map(w=>button(w[0].toUpperCase()+w.slice(1),'choose-want',w)).join('')+
-    button('Not sure — stay with the feeling','choose-want',''));
+    button('Not sure','choose-want',''));
 }
 function beginRelease(kind, next = check) {
   if ((session.path === 'wants' || session.path === 'topics') && kind === 'want') {
@@ -119,7 +119,7 @@ function beginRelease(kind, next = check) {
 
 function uncertainWant(next) {
   screen('Notice the want', 'Take a moment with your reaction.',
-    '<p>Does it ask for love or agreement, a change in how things are, or a sense of safety? Pick whichever feels closest.</p>',
+    '<p>Read what you wrote. Are you looking for approval, trying to change something, or wanting to feel safe? Choose the closest fit.</p>',
     button('Choose a want','choose-again') + button('Return home','home'));
   session.wantNext = () => beginRelease('want', next);
 }
@@ -141,7 +141,7 @@ function craneQuestion() {
     controls = button('Yes','crane-advance') + button('Not yet','crane-unwilling');
   }
   screen('Release the want · '+(releasing.index+1)+' of 5',prompts[releasing.index],
-    '<p>Wait for your own response. Here, “having” points to the felt experience of having enough in this moment.</p>', controls);
+    '<p>Wait for your answer before tapping. “Having” means what it feels like to have approval, control or safety already.</p>', controls);
 }
 
 function releaseQuestion() {
@@ -149,20 +149,20 @@ function releaseQuestion() {
   const question = [`Could you let go of ${object}?`,'Would you?','When?'][releasing.index];
   if (!question) return afterRelease();
   screen(releasing.kind === 'want' ? 'Release the want' : 'Release the feeling',question,
-    '<p>Notice your response. Answer in your own time.</p>',
+    '<p>Answer when you’re ready.</p>',
     releasing.index === 2
       ? button('Now','advance')+button('Not yet','unwilling')
       : button('Yes','advance')+button('Maybe','advance')+button('No','unwilling'));
 }
 function unwilling() {
   screen('Allow your response','Could the unwillingness be here too?',
-    '<p>Notice any effort to force the feeling away.</p>',
+    '<p>If you’re trying to push the feeling away, notice that too.</p>',
     button('Continue with the questions','advance')+button('Release the effort','release-effort'));
 }
 function quick() {
   screen('Quick release','Could you loosen your grip on this, just a little?',
-    '<p>Notice what you are holding. Allow it for a moment, then see whether you can soften the hold.</p>',
-    button('I’ve taken a moment','check'));
+    '<p>Think about what you wrote, then try letting go.</p>',
+    button('Done','check'));
 }
 function check() {
   screen('Your practice', 'Would you like to release again?', '',
@@ -170,19 +170,19 @@ function check() {
 }
 function goalReaction() {
   screen('Releasing goals','Read your goal slowly. What comes up?',
-    '<p>Notice a thought, feeling or sensation, including doubt or pressure.</p>'+field('Your reaction (optional)',session.reaction||''),
+    '<p>What’s your first reaction? Write it below if you’d like.</p>'+field('Your reaction (optional)',session.reaction||''),
     button('Release this feeling','goal-feeling')+button('Find the want underneath','goal-want'));
 }
 function topics() {
   screen('Releasing by topics','What topic would you like to explore?',
-    '<p>Choose one, or type your own below.</p>'+
+    '<p>Pick a topic or write your own.</p>'+
     `<div class="topic-options">${Object.entries(topicChoices).map(([key,value])=>button(value,'topic-preset',key)).join('')}</div>`+
     field('Your topic','','For example, having money or being accepted'),
     button('Use my topic','save-focus','',true));
 }
 function chooseTopicMode() {
   screen('Choose an exercise','How would you like to explore this?',
-    '<p>Attachment explores clinging or needing it. Aversion explores resisting or pushing it away.</p>',
+    '<p>Choose attachment if you feel you need it or can’t let it go. Choose aversion if you dislike it or want to avoid it.</p>',
     button('Attachment','topic-mode','attachment')+button('Aversion','topic-mode','aversion'));
 }
 function topicQuestion() {
@@ -208,9 +208,9 @@ function topicQuestion() {
       button('Release again','topic-mode',session.topicMode) + button('Return home','home'));
   }
   screen(`${attachment?'Attachment':'Aversion'} · ${session.topicIndex+1} of 5`,questions[session.topicIndex],
-    '<p>Notice the reaction and the want underneath. Work with one reaction at a time.</p>'+
+    '<p>Write your first reaction. Next, you’ll choose which want goes with it.</p>'+
     field('What comes up? (optional)',session.answers[session.topicIndex]||''),
-    button('Find and release the want','topic-release','',true)+button('Next question','topic-next'));
+    button('Choose the want','topic-release','',true)+button('Next question','topic-next'));
 }
 const actions = {
   home, start, 'save-focus':saveFocus,
@@ -225,7 +225,7 @@ const actions = {
   'crane-unsure':()=>screen('Release the want','Would you like another round?', '',
     button('Release again','crane-repeat')+button('Continue','crane-done')),
   'crane-unwilling':()=>screen('Allow your response','Could I let go of wanting to control this stuckness?',
-    '<p>Give the unwillingness room. See if the effort to make a release happen can soften.</p>',
+    '<p>If you’re trying hard to make this work, try releasing that effort first.</p>',
     button('Try again','crane-repeat')+button('Continue','crane-advance')),
   advance:()=>{releasing.index++;releaseQuestion();},
   unwilling,
@@ -233,16 +233,16 @@ const actions = {
   check,
   repeat:()=>{if(session.path==='quick')return quick();if(session.path==='topics')return topicQuestion();if(session.path==='goals')return goalReaction();if(session.path==='wants')return wantsStep(3);beginRelease('feeling');},
   stuck:()=>screen('Stuckness','Could you let go of wanting to control this stuckness?',
-    '<p>Allow the effort itself to be here. See whether you can soften it.</p>',
-    button('Take a moment, then check','check')+button('Return to my practice','repeat')),
+    '<p>Notice the effort you’re putting into this. See if you can let some of it go.</p>',
+    button('Continue','check')+button('Return to my practice','repeat')),
   'goal-reaction':goalReaction,
   'goal-feeling':()=>{session.reaction=app.querySelector('#entry').value;beginRelease('feeling');},
   'goal-want':()=>{session.reaction=app.querySelector('#entry').value;wantPicker(()=>beginRelease(selectedWant?'want':'feeling'));},
   'topic-preset':key=>{session.focus=topicChoices[key];chooseTopicMode();},
   'topic-mode':value=>{session.topicMode=value;session.topicIndex=0;session.answers={};topicQuestion();},
   'topic-release':()=>{session.reaction=app.querySelector('#entry').value;session.answers[session.topicIndex]=session.reaction;wantPicker(()=>beginRelease('want',()=>{
-    screen('Notice what remains','Is there another reaction to this question?',
-      '<p>Release another layer, or continue to the next part of the exercise.</p>',
+    screen('After this round','Is there another reaction to this question?',
+      '<p>You can work on another reaction to this question, or go to the next one.</p>',
       button('Another reaction','topic-question')+button('Next question','topic-next'));
   }));},
   'topic-question':topicQuestion,

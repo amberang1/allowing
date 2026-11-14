@@ -70,3 +70,15 @@ button.primary.is-activating {
 h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 .path-list .path-card{padding:17px 20px}
 .hero h1{font-size:clamp(40px,6vw,60px)}
+
+.brand {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-radius: 6px;
+}
+.brand:hover { color: #365f56; }
+.brand:focus-visible { outline: 2px solid #78978a; outline-offset: 4px; }
+.brand:active { opacity: .65; }
