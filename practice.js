@@ -31,7 +31,12 @@ function render(html) {
 }
 function focusLabel() {
   if (!session.focus) return '';
-  return `<aside class="focus-card"><small>Your focus</small><p>${escapeText(session.focus)}</p></aside>`;
+  const reaction = session.reaction?.trim();
+  const want = selectedWant === 'security' ? 'Safety / security' : selectedWant;
+  return `<aside class="focus-card"><small>Your focus</small><p>${escapeText(session.focus)}</p>
+    ${reaction ? `<small>Your reaction</small><p>${escapeText(reaction)}</p>` : ''}
+    ${want ? `<small>Type of want</small><p>${escapeText(want[0].toUpperCase()+want.slice(1))}</p>` : ''}
+  </aside>`;
 }
 function screen(label, title, body, controls) {
   render(`<section class="session"><span class="eyebrow">${escapeText(label)}</span>
@@ -43,12 +48,14 @@ function field(label, value = '', placeholder = '') {
 }
 function home() {
   session = {};
+  selectedWant = '';
   render(`<div class="hero"><span class="eyebrow">A little room</span><h1 tabindex="-1">What would you<br>like to release?</h1><p>Choose a practice. Take it one question at a time.</p></div>
     <div class="path-list">${paths.map(([key,label,description],i)=>`<button class="path-card" data-action="start" data-value="${key}">
       <span class="path-number">0${i+1}</span><span><strong>${label}</strong><small>${description}</small></span><span aria-hidden="true">→</span></button>`).join('')}</div>
     <p><a href="/guide.html">Read the field guide</a></p>`);
 }
 function start(path) {
+  selectedWant = '';
   session = {path, focus:'', topicIndex:0, topicMode:'attachment', answers:{}};
   if (path === 'topics') return topics();
   const titles = {
@@ -91,6 +98,7 @@ function wantsStep(step) {
   screen(label,title,`<p>${copy}</p>`,controls);
 }
 function wantPicker(next) {
+  selectedWant = '';
   session.wantNext = next;
   screen('Notice the want','What does the inner demand feel like?',
     '<p>Approval — “I need love or agreement.”<br>Control — “This must go my way.”<br>Security — “I need a guarantee.”</p>',
@@ -98,10 +106,44 @@ function wantPicker(next) {
     button('Not sure — stay with the feeling','choose-want',''));
 }
 function beginRelease(kind, next = check) {
+  if ((session.path === 'wants' || session.path === 'topics') && kind === 'want') {
+    if (!selectedWant) return uncertainWant(next);
+    afterRelease = next;
+    releasing = {kind:'crane', index:0};
+    return craneQuestion();
+  }
   afterRelease = next;
   releasing = {kind, index:0};
   releaseQuestion();
 }
+
+function uncertainWant(next) {
+  screen('Notice the want', 'Take a moment with your reaction.',
+    '<p>Does it ask for love or agreement, a change in how things are, or a sense of safety? Pick whichever feels closest.</p>',
+    button('Choose a want','choose-again') + button('Return home','home'));
+  session.wantNext = () => beginRelease('want', next);
+}
+function craneQuestion() {
+  const want = selectedWant === 'security' ? 'safety' : selectedWant;
+  const prompts = [
+    `Could I let go of wanting ${want}, so I can have ${want}?`,
+    `Could I let go of wanting ${want} to have ${want}?`,
+    `Which feels better — having ${want} or wanting ${want}?`,
+    `Could I let go of wanting ${want}, so I can have ${want}?`,
+    `Does it feel like I have ${want}, or still want ${want}?`
+  ];
+  let controls;
+  if (releasing.index === 2) {
+    controls = button('Having '+want,'crane-advance') + button('Wanting '+want,'crane-advance');
+  } else if (releasing.index === 4) {
+    controls = button('Having '+want,'crane-done') + button('Still wanting','crane-repeat') + button('Not sure','crane-unsure');
+  } else {
+    controls = button('Yes','crane-advance') + button('Not yet','crane-unwilling');
+  }
+  screen('Release the want · '+(releasing.index+1)+' of 5',prompts[releasing.index],
+    '<p>Wait for your own response. Here, “having” points to the felt experience of having enough in this moment.</p>', controls);
+}
+
 function releaseQuestion() {
   const object = releasing.kind === 'want' && selectedWant ? 'wanting '+selectedWant : 'this feeling';
   const question = [`Could you let go of ${object}?`,'Would you?','When?'][releasing.index];
@@ -144,6 +186,8 @@ function chooseTopicMode() {
     button('Attachment','topic-mode','attachment')+button('Aversion','topic-mode','aversion'));
 }
 function topicQuestion() {
+  selectedWant = '';
+  session.reaction = session.answers[session.topicIndex] || '';
   const topic = session.focus;
   const attachment = session.topicMode === 'attachment';
   const questions = attachment ? [
@@ -174,6 +218,15 @@ const actions = {
   'wants-step':value=>wantsStep(Number(value)),
   resistance:()=>{selectedWant='control';beginRelease('want',()=>wantsStep(3));},
   'choose-want':value=>{selectedWant=value;session.wantNext();},
+  'choose-again':()=>wantPicker(session.wantNext),
+  'crane-advance':()=>{releasing.index++;craneQuestion();},
+  'crane-repeat':()=>{releasing.index=0;craneQuestion();},
+  'crane-done':()=>afterRelease(),
+  'crane-unsure':()=>screen('Release the want','Would you like another round?', '',
+    button('Release again','crane-repeat')+button('Continue','crane-done')),
+  'crane-unwilling':()=>screen('Allow your response','Could I let go of wanting to control this stuckness?',
+    '<p>Give the unwillingness room. See if the effort to make a release happen can soften.</p>',
+    button('Try again','crane-repeat')+button('Continue','crane-advance')),
   advance:()=>{releasing.index++;releaseQuestion();},
   unwilling,
   'release-effort':()=>{selectedWant='control';beginRelease('want');},
@@ -187,7 +240,7 @@ const actions = {
   'goal-want':()=>{session.reaction=app.querySelector('#entry').value;wantPicker(()=>beginRelease(selectedWant?'want':'feeling'));},
   'topic-preset':key=>{session.focus=topicChoices[key];chooseTopicMode();},
   'topic-mode':value=>{session.topicMode=value;session.topicIndex=0;session.answers={};topicQuestion();},
-  'topic-release':()=>{session.answers[session.topicIndex]=app.querySelector('#entry').value;wantPicker(()=>beginRelease(selectedWant?'want':'feeling',()=>{
+  'topic-release':()=>{session.reaction=app.querySelector('#entry').value;session.answers[session.topicIndex]=session.reaction;wantPicker(()=>beginRelease('want',()=>{
     screen('Notice what remains','Is there another reaction to this question?',
       '<p>Release another layer, or continue to the next part of the exercise.</p>',
       button('Another reaction','topic-question')+button('Next question','topic-next'));
