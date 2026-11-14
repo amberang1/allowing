@@ -1,0 +1,72 @@
+*{box-sizing:border-box}body{margin:0;background:#f6f4ed;color:#293e43;font:16px/1.65 system-ui}header{padding:24px 6%;display:flex;justify-content:space-between;border-bottom:1px solid #dce0d7}button{font:inherit;cursor:pointer;border:1px solid #c7d2cd;background:transparent;color:inherit;border-radius:30px;padding:11px 23px;margin:5px}button:focus-visible{outline:2px solid #78978a;outline-offset:3px}.primary{background:#365f56;color:white;border:0}main{max-width:1060px;margin:auto;padding:65px 25px}h1,h2,h3{font-family:Georgia,serif;font-weight:400;line-height:1.15}h1{font-size:clamp(48px,7vw,80px);margin:18px 0}h2{font-size:40px}h3{font-size:27px}p{color:#60716f}.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#53796b}.hero{max-width:700px}.orb{float:right;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f4e9cd,#bccfc1 60%,#7c9c91);box-shadow:0 0 80px #dce5d8;margin:30px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:40px 0}.card{background:#eeeee5;border:1px solid #dce0d4;border-radius:18px;padding:26px;text-align:left}.card button{margin-left:0}.session{max-width:720px;margin:auto;text-align:center;background:#fffdf7;border:1px solid #dce0d4;border-radius:24px;padding:40px 24px;min-height:430px}.session h2{margin:30px 0}textarea{width:100%;padding:16px;background:#f7f7ef;border:1px solid #cbd5cb;border-radius:12px;font:inherit;min-height:95px}footer{margin-top:55px;border-top:1px solid #dce0d4;padding-top:20px;font-size:12px;color:#75817a}details{padding:20px;border-bottom:1px solid #d4ded4}summary{cursor:pointer;font-size:20px}small{color:#687b72}@media(max-width:650px){.grid{grid-template-columns:1fr}.orb{width:95px;height:95px}main{padding-top:35px}header{padding:16px}header button{padding:7px 12px}.session h2{font-size:32px}}
+a{color:#365f56;text-underline-offset:.2em}
+nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav-link{border:1px solid #c7d2cd;border-radius:30px;padding:7px 15px;text-decoration:none}
+.nav-link[aria-current=page]{background:#e2ebe2}
+.primary:hover,.primary:focus-visible{background:#294a42}
+label{display:block;font-weight:600;margin:12px 0 4px}
+textarea,select{color:inherit}
+select{font:inherit;padding:10px;border:1px solid #cbd5cb;border-radius:10px;background:#fffdf7}
+.session textarea{max-width:560px}
+blockquote{margin:18px 0;background:#edf0e6;border-left:3px solid #78978a;padding:14px 18px;overflow-wrap:anywhere;white-space:pre-line}
+.guide{max-width:780px}
+.guide h1{font-size:clamp(42px,7vw,66px)}
+.guide h2{font-size:clamp(28px,5vw,40px)}
+.guide section{margin:44px 0;padding-bottom:20px;border-bottom:1px solid #dce0d4}
+.guide section h3{margin-bottom:6px}
+.guide li{margin-bottom:.6em}
+.contents{background:#e9ede3;padding:20px 26px;border-radius:18px}
+.contents ol{columns:2;padding-left:24px}
+.guide .action{display:inline-block;border-radius:30px;padding:10px 20px;background:#365f56;color:#fff;text-decoration:none}
+.goal-options{margin:12px 0}
+#pause-panel[hidden],#app[hidden]{display:none}
+@media(max-width:650px){header{flex-wrap:wrap;gap:12px} .contents ol{columns:1}.session{padding:28px 15px}}
+.guide .contents{display:block}
+.guide dt{margin-top:1em}
+.guide dd{margin:.2em 0 0}
+
+/* A consistent tactile response for pointer, touch and keyboard activation. */
+button {
+  min-height: 44px;
+  touch-action: manipulation;
+  transition: background-color 100ms ease, box-shadow 100ms ease, transform 100ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  button:hover { background-color: #e8eee7; }
+  button.primary:hover { background-color: #294a42; }
+}
+button:active,
+button.is-activating {
+  background-color: #d0e0d6;
+  border-color: #648778;
+  color: #203f34;
+  box-shadow: inset 0 2px 4px rgb(28 61 47 / 23%);
+  transform: translateY(1px) scale(.98);
+}
+button.primary:active,
+button.primary.is-activating {
+  background-color: #23483d;
+  color: white;
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 30%);
+}
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none; }
+  button:active, button.is-activating { transform: none; }
+}
+.path-list{display:grid;gap:12px;max-width:760px;margin:32px 0}
+.path-card{display:flex;align-items:center;gap:20px;width:100%;margin:0;border-radius:16px;padding:22px;text-align:left;background:#eeeee5}
+.path-card strong{display:block;font:25px Georgia,serif}
+.path-card small{display:block;margin-top:5px;font-size:14px}
+.path-card>span:last-child{margin-left:auto}
+.path-number{font-size:12px;color:#658274}
+.focus-card{text-align:left;background:#e8eee5;border-left:3px solid #78978a;padding:12px 18px;border-radius:8px;margin:20px 0}
+.focus-card small{text-transform:uppercase;letter-spacing:2px;font-size:10px}
+.focus-card p{margin:4px 0;color:#293e43;white-space:pre-wrap;overflow-wrap:anywhere}
+.session-tools{margin-top:30px}
+.answers{margin-top:22px}
+.session h2{overflow-wrap:anywhere}
+@media(max-width:650px){.path-card{padding:18px;gap:14px}.path-card strong{font-size:22px}.path-card small{font-size:13px}.session{min-height:0}}
+.path-card>span:last-child{font-family:system-ui}
+h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
+.path-list .path-card{padding:17px 20px}
+.hero h1{font-size:clamp(40px,6vw,60px)}
