@@ -67,7 +67,7 @@ function screen(label, title, body, controls) {
   render(`<section class="session"><span class="eyebrow">${escapeText(label)}</span>
     ${focusLabel()}<h2 tabindex="-1">${escapeText(title)}</h2>${body}
     <div class="answers">${controls}</div>
-    ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || (label.startsWith('Release the want') || label.startsWith('Quick release')) ? (session.path === 'quick' ? cloudExample() : pencilExample()) : ''}
+    ${['Release the feeling','Quick release','Allow your response','Stuckness'].includes(label) || (label.startsWith('Release the want') || label.startsWith('Quick release')) ? (session.path === 'quick' ? cloudExample() : pencilExample() + cloudExample()) : ''}
     </section>`);
 }
 function field(label, value = '', placeholder = '') {
