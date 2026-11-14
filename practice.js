@@ -45,7 +45,7 @@ function pencilExample() {
       <img src="./pencil-release.webp" width="1774" height="887"
         alt="Three drawings: a hand grips a pencil, opens with the pencil resting freely, then lets the pencil drop." loading="lazy">
       <div class="pencil-captions"><span>Hold it</span><span>Open your hand</span><span>Let it drop</span></div>
-      <figcaption>Think of a pencil in your hand. When you open your fingers, you can see it’s separate from your hand. Then you can let it drop. Try that same easing of your hold with the feeling you’re working on.</figcaption>
+      <figcaption>In this exercise, imagine the feeling as a pencil in your hand. The pencil is something you’re holding, rather than part of your hand. Open your fingers and it can rest there freely. Then let it drop. Try the same with the feeling: let it be there, then see if you can relax your hold without pushing it away.</figcaption>
     </figure>
     <p class="pencil-source">Adapted from The Insider’s Guide to the Sedona Method, p. 4.</p>
   </details>`;
@@ -114,7 +114,7 @@ function wantsStep(step) {
 function wantPicker(next) {
   selectedWant = '';
   session.wantNext = next;
-  screen('Notice the want','What does the inner demand feel like?',
+  screen('Notice the want','What do you feel you need right now?',
     '<p>Approval — “I need love or agreement.”<br>Control — “This must go my way.”<br>Security — “I need a guarantee.”</p>',
     ['approval','control','security'].map(w=>button(w[0].toUpperCase()+w.slice(1),'choose-want',w)).join('')+
     button('Not sure','choose-want',''));
