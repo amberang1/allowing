@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A quiet guided practice for releasing feelings, wants and reactions to goals.">
   <title>Allowing — guided releasing</title>
-  <link rel="stylesheet" href="./room.css?v=practices-2">
-  <script src="./practice.js?v=practices-2" defer></script>
+  <link rel="stylesheet" href="./room.css?v=bilingual-1">
+  <script src="./locale.js?v=1" defer></script>
+  <script src="./practice.js?v=bilingual-1" defer></script>
   <meta name="theme-color" content="#365f56">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Allowing">
@@ -16,15 +17,19 @@
   <link rel="icon" type="image/svg+xml" href="./icons/allowing.svg?v=1">
   <link rel="manifest" href="./manifest.webmanifest?v=1">
 </head>
-<body>
+<body data-title-en="Allowing — guided releasing" data-title-zh="Allowing · 释放练习">
   <header>
     <a class="brand" href="./" aria-label="Allowing — home" title="Return home"><strong>◯ &nbsp; Allowing</strong></a>
-    <nav aria-label="Main"><a class="nav-link" href="./" aria-current="page">Practice</a><a class="nav-link" href="./guide.html">Field guide</a></nav>
+    <nav aria-label="Practice / 练习"><a data-practice-link class="nav-link" href="./" aria-current="page">Practice</a></nav><div class="language-switch" role="group" aria-label="Language / 语言">
+      <button type="button" data-language="en" lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-language="zh-CN" lang="zh-CN" aria-pressed="false">中文</button>
+    </div>
   </header>
   <main>
     <div id="app"></div>
   </main>
 </body>
 </html>
+
 
 

@@ -24,9 +24,101 @@ function escapeText(value) {
 function button(label, action, value = '', primary = false) {
   return `<button type="button" data-action="${action}" data-value="${escapeText(value)}" class="${primary ? 'primary' : ''}">${escapeText(label)}</button>`;
 }
+let screenMarkup = '';
+function screenTranslation(text) {
+  if (language !== 'zh-CN') return text;
+  const direct = translate(text);
+  if (direct !== text) return direct;
+
+  const progress = text.match(/^(.+) · (\d+) of (\d+)$/);
+  if (progress) return `${translate(progress[1])} · 第 ${progress[2]} 步，共 ${progress[3]} 步`;
+  const wantNames = {approval: '认可', control: '掌控感', safety: '安全感', security: '安全感'};
+  const wantPatterns = [
+    [/^Could I let go of wanting (\w+), so I can have \w+\?$/, name => `我能不能放下对${name}的渴求，让自己感受到已经拥有它？`],
+    [/^Could I let go of wanting (\w+) to have \w+\?$/, name => `我能不能放下想要${name}的感觉，体会已经拥有它的感觉？`],
+    [/^Which feels better — having (\w+) or wanting \w+\?$/, name => `已经有了${name}，和仍在渴求它，哪种感觉更好？`],
+    [/^Does it feel like I have (\w+), or still want \w+\?$/, name => `现在，我感觉已经有了${name}，还是仍在渴求它？`],
+    [/^Having (\w+)$/, name => `已经有了${name}`],
+    [/^Wanting (\w+)$/, name => `还想要${name}`],
+    [/^Could you let go of wanting (\w+)\?$/, name => `你能不能放下对${name}的渴求？`]
+  ];
+  for (const [pattern, format] of wantPatterns) {
+    const match = text.match(pattern);
+    if (match && Object.hasOwn(wantNames, match[1])) return format(wantNames[match[1]]);
+  }
+  if (text === 'Could you let go of this feeling?') return '你能不能放下这份感受？';
+
+  if (session.path === 'topics' && !session.special && session.focus) {
+    const topic = session.topicPreset ? translate(session.focus) : session.focus;
+    const source = session.focus;
+    const questions = new Map([
+      [`What thoughts come up about your attachment to ${source}?`, `想到自己执着于「${topic}」时，你有什么想法？`],
+      [`What feels advantageous about ${source}?`, `你觉得「${topic}」有什么好处？`],
+      [`What feels disadvantageous about ${source}?`, `你觉得「${topic}」有什么不利的地方？`],
+      [`Imagine never being able to experience ${source}. What comes up?`, `想象你再也无法体验「${topic}」。你有什么反应？`],
+      [`Could you let go of your attachment to ${source}?`, `你能不能放下对「${topic}」的执着？`],
+      [`What thoughts come up about your aversion to ${source}?`, `想到自己抗拒「${topic}」时，你有什么想法？`],
+      [`What do you like about ${source}?`, `对于「${topic}」，你喜欢哪些方面？`],
+      [`What do you dislike about ${source}?`, `对于「${topic}」，你不喜欢哪些方面？`],
+      [`Imagine always experiencing ${source}. What comes up?`, `想象你总是会体验到「${topic}」。你有什么反应？`],
+      [`Could you let go of your aversion to ${source}?`, `你能不能放下对「${topic}」的抗拒？`]
+    ]);
+    return questions.get(text) ?? text;
+  }
+  return text;
+}
+
+function localizeScreen() {
+  if (language !== 'zh-CN') return;
+  const walker = document.createTreeWalker(app, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (node.parentElement.closest('textarea, [data-user-text], [data-focus]')) continue;
+    const original = node.nodeValue.trim();
+    if (original) node.nodeValue = node.nodeValue.replace(original, () => screenTranslation(original));
+  }
+  if (session.topicPreset || session.builtInFocus) {
+    const focus = app.querySelector('[data-focus]');
+    if (focus) focus.textContent = translate(session.focus);
+  }
+  app.querySelectorAll('[placeholder], [alt]').forEach(element => {
+    for (const name of ['placeholder', 'alt']) {
+      if (element.hasAttribute(name)) element.setAttribute(name, translate(element.getAttribute(name)));
+    }
+  });
+}
+
+document.addEventListener('allowing-language-change', () => {
+  const entry = app.querySelector('#entry');
+  const value = entry?.value;
+  const error = app.querySelector('#error')?.dataset.message;
+  const scroll = window.scrollY;
+  const disclosures = [...app.querySelectorAll('details')].map(element => element.open);
+  app.innerHTML = screenMarkup;
+  localizeScreen();
+  app.querySelectorAll('details').forEach((element, index) => { element.open = disclosures[index]; });
+  if (entry) {
+    const newEntry = app.querySelector('#entry');
+    const key = params.get('example');
+    const example = session.path === 'goals' && !session.focus && Object.hasOwn(goalExamples, key)
+      ? goalExamples[key] : '';
+    newEntry.value = example && (value === example || value === chinese[example]) ? translate(example) : value;
+  }
+  if (error) showEntryError(error, false);
+  window.scrollTo(0, scroll);
+});
+
+function showEntryError(message, focus = true) {
+  const error = app.querySelector('#error');
+  error.dataset.message = message;
+  error.textContent = translate(message);
+  if (focus) app.querySelector('#entry').focus();
+}
+
 function render(html) {
   app.hidden = false;
+  screenMarkup = html;
   app.innerHTML = html;
+  localizeScreen();
   app.querySelector('h1, h2')?.focus({preventScroll:true});
   window.scrollTo(0, 0);
 }
@@ -34,8 +126,8 @@ function focusLabel() {
   if (!session.focus) return '';
   const reaction = session.reaction?.trim();
   const want = selectedWant === 'security' ? 'Safety / security' : selectedWant;
-  return `<aside class="focus-card"><small>Your focus</small><p>${escapeText(session.focus)}</p>
-    ${reaction ? `<small>Your reaction</small><p>${escapeText(reaction)}</p>` : ''}
+  return `<aside class="focus-card"><small>Your focus</small><p data-focus>${escapeText(session.focus)}</p>
+    ${reaction ? `<small>Your reaction</small><p data-user-text>${escapeText(reaction)}</p>` : ''}
     ${want ? `<small>Type of want</small><p>${escapeText(want[0].toUpperCase()+want.slice(1))}</p>` : ''}
   </aside>`;
 }
@@ -68,7 +160,7 @@ function practiceHelp() {
     <details><summary>I don’t feel anything.</summary><p>No need to create a feeling. Notice whatever is here, even blankness, numbness or uncertainty.</p></details>
     <details><summary>I keep analysing this.</summary><p>Could you let go of needing to figure this out, just for this moment? Return to the feeling or sensation you actually notice. You can come back to practical questions later.</p></details>
     <details><summary>I don’t want to let go.</summary><p>An honest “no” is okay. Allow the unwillingness too, without trying to talk yourself out of it.</p></details>
-    <details><summary>How do I know if I’ve released?</summary><p>It may be a small easing, a quieter thought or less need to change something. There’s no required sensation. You don’t need to check constantly or reach a completely empty mind.</p><a href="./guide.html#experience" target="_blank" rel="noopener">Read more in the field guide ↗</a></details>
+    <details><summary>How do I know if I’ve released?</summary><p>It may be a small easing, a quieter thought or less need to change something. There’s no required sensation. You don’t need to check constantly or reach a completely empty mind.</p></details>
     <p>If you’d like to stop, tap Allowing at the top to return home.</p>
   </details>`;
 }
@@ -89,8 +181,7 @@ function home() {
   selectedWant = '';
   render(`<div class="hero"><span class="eyebrow">Allowing</span><h1 tabindex="-1">What would you<br>like to release?</h1><p>Pick where you’d like to start.</p></div>
     <div class="path-list">${paths.map(([key,label,description],i)=>`<button class="path-card" data-action="start" data-value="${key}">
-      <span class="path-number">0${i+1}</span><span><strong>${label}</strong><small>${description}</small></span><span aria-hidden="true">→</span></button>`).join('')}</div>
-    <p><a href="./guide.html">Read the field guide</a></p>`);
+      <span class="path-number">0${i+1}</span><span><strong>${label}</strong><small>${description}</small></span><span aria-hidden="true">→</span></button>`).join('')}</div>`);
 }
 const goalExamples = {
   love: 'I allow myself to enjoy a loving, playful, committed partnership.',
@@ -114,15 +205,14 @@ function start(path) {
   screen(paths.find(p=>p[0]===path)[1],title,`<p>${copy}</p>`+field('Your focus','',placeholder)+(path==='feelings'?'<p><a href="./feelings.html" target="_blank" rel="noopener">Need help naming the feeling? View the feelings charts ↗</a></p>':''),button('Begin','save-focus','',true));
   if (path === 'goals') {
     const example = params.get('example');
-    if (Object.hasOwn(goalExamples, example)) app.querySelector('#entry').value = goalExamples[example];
+    if (Object.hasOwn(goalExamples, example)) app.querySelector('#entry').value = translate(goalExamples[example]);
   }
 }
 function saveFocus() {
   const entry = app.querySelector('#entry');
   const value = entry.value.trim();
   if (!value) {
-    app.querySelector('#error').textContent = 'Type what you’d like to release.';
-    entry.focus();
+    showEntryError('Type what you’d like to release.');
     return;
   }
   session.focus = value;
@@ -295,7 +385,7 @@ function specialStart(kind) {
 }
 function saveSpecialFocus() {
   const entry=app.querySelector('#entry');
-  if(!entry.value.trim()) {app.querySelector('#error').textContent='Write what you’d like to explore.';entry.focus();return;}
+  if(!entry.value.trim()) {showEntryError('Write what you’d like to explore.');return;}
   session.focus=entry.value.trim();
   specialNotice();
 }
@@ -356,7 +446,7 @@ const actions = {
   'goal-reaction':goalReaction,
   'goal-feeling':()=>{session.reaction=app.querySelector('#entry').value;beginRelease('feeling');},
   'goal-want':()=>{session.reaction=app.querySelector('#entry').value;wantPicker(()=>beginRelease(selectedWant?'want':'feeling'));},
-  'topic-preset':key=>{session.focus=topicChoices[key];chooseTopicMode();},
+  'topic-preset':key=>{session.topicPreset=key;session.focus=topicChoices[key];chooseTopicMode();},
   'topic-mode':value=>{session.topicMode=value;session.topicIndex=0;session.answers={};topicQuestion();},
   'topic-release':()=>{session.reaction=app.querySelector('#entry').value;session.answers[session.topicIndex]=session.reaction;wantPicker(()=>beginRelease('want',()=>{
     screen('After this round','Is there another reaction to this question?',
@@ -383,11 +473,12 @@ const requested=params.get('practice');
 const routes={feelings:'feelings',quick:'feelings',welcoming:'quick',wants:'wants',topics:'topics',triple:'triple',goal:'goals',goals:'goals',stuck:'quick'};
 
 if(requested === 'stuck') {
-  session = {path:'feelings',focus:'Trying to force a release'};
+  session = {path:'feelings',focus:'Trying to force a release',builtInFocus:true};
   actions.stuck();
 } else if(requested === 'self-approval' || requested === 'exploring-love') specialStart(requested === 'self-approval' ? 'self' : 'love');
 else if(routes[requested]) start(routes[requested]);
 else home();
+
 
 
 
